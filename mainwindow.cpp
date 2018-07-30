@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QDebug>
+#include <QVTKWidget.h>
 
 
 #include <vtkAutoInit.h>
@@ -31,6 +32,42 @@ VTK_MODULE_INIT(vtkRenderingFreeType);
 #include <vtkVertexGlyphFilter.h>
 #include <vtkKdTreePointLocator.h>
 #include <vtkAppendFilter.h>
+#include <vtkCommand.h>
+#include <vtkCallbackCommand.h>
+
+vtkSmartPointer<vtkPoints> fullHexagonArray =
+        vtkSmartPointer<vtkPoints>::New();
+int callbackCounter = 0;
+
+static void KeypressCallbackFunction ( vtkObject* caller, long unsigned int eventId,
+          void* clientData, void* callData);
+
+
+class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
+{
+public:
+    static KeyPressInteractorStyle* New();
+    vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
+
+    virtual void OnKeyPress()
+    {
+        vtkRenderWindowInteractor *rwi = this->Interactor;
+        std::string key = rwi->GetKeySym();
+
+        qDebug() << QString::fromStdString(key);
+
+        if(key == "a") {
+            qDebug() << "MOVE BEAM FORWARD";
+        }
+        if(key == "d") {
+            qDebug() << "MOVE BEAM BACKWARD";
+        }
+
+        vtkInteractorStyleTrackballCamera::OnKeyPress();
+    }
+
+};
+vtkStandardNewMacro(KeyPressInteractorStyle);
 
 
 
@@ -77,11 +114,21 @@ MainWindow::MainWindow(QWidget *parent) :
             vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer(renderer);
 
+
+
+
+
+
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
             vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
     vtkSmartPointer<vtkInteractorStyleTrackballCamera> interactorStyle =
             vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+
+//    vtkSmartPointer<KeyPressInteractorStyle> interactorStyle =
+//            vtkSmartPointer<KeyPressInteractorStyle>::New();
+
+
     renderWindowInteractor->SetInteractorStyle(interactorStyle);
     renderWindowInteractor->SetRenderWindow(renderWindow);
 
@@ -90,11 +137,6 @@ MainWindow::MainWindow(QWidget *parent) :
             vtkSmartPointer<vtkAxesActor>::New();
     axesActor->AxisLabelsOff();
     axesActor->SetTotalLength(50,50,50);
-
-
-
-
-
 
 
 
@@ -194,8 +236,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     vtkSmartPointer<vtkPoints> pointsArrayTrueSpiral =
             vtkSmartPointer<vtkPoints>::New();
-    vtkSmartPointer<vtkPoints> fullHexagonArray =
-            vtkSmartPointer<vtkPoints>::New();
+//    vtkSmartPointer<vtkPoints> fullHexagonArray =
+//            vtkSmartPointer<vtkPoints>::New();
 
     vtkSmartPointer<vtkPoints> sixSide1 =
             vtkSmartPointer<vtkPoints>::New();
@@ -228,7 +270,7 @@ MainWindow::MainWindow(QWidget *parent) :
     vtkSmartPointer<vtkPoints> pointsArrayHexagon =
             vtkSmartPointer<vtkPoints>::New();
 
-    while(i<4)
+    while(i<100)
     {
         //1 SIDE OF HEXAGON
         sixSide1->InsertNextPoint(hexagonCenterPoint[0], hexagonCenterPoint[1] - stepOver*(i-1), hexagonCenterPoint[2]);
@@ -305,14 +347,12 @@ MainWindow::MainWindow(QWidget *parent) :
         sixSide5->Resize(0);
         sixSide6->Resize(0);
 
-
-
         //CHECKING IF POINTS IN pointsArrayHexagon ARE POSITONED IN THE WORK AREA and populating a fullHexagonArray
 
         for (int i = 0; i<pointsArrayHexagon->GetNumberOfPoints(); i++)
         {
             pointsArrayHexagon->GetPoint(i,bufferPoint);
-            if((abs(bufferPoint[0]) <= workAreaX/2) && (abs(bufferPoint[1]) <= workAreaY/2)) {
+            if((abs(bufferPoint[0]) <= workAreaX/2-spotSize/2) && (abs(bufferPoint[1]) <= workAreaY/2-spotSize/2)) {
                 fullHexagonArray->InsertNextPoint(bufferPoint);
                 qDebug() << "INSIDE!";
             }
@@ -323,22 +363,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
         }
 
-        pointsArrayHexagon->Resize(0);
-
         qDebug()<< "Number of points in pointsArrayHexagon: " << (int)pointsArrayHexagon->GetNumberOfPoints();
         qDebug()<< "Outside points counter: " << outsidePointsCounter;
 
         qDebug()<< "Number of points in fullHexagonArray: " << (int)fullHexagonArray->GetNumberOfPoints();
 
-        if (pointsArrayHexagon->GetNumberOfPoints() == outsidePointsCounter)
+        if((int)pointsArrayHexagon->GetNumberOfPoints() == outsidePointsCounter) {
+            qDebug() << "BREAK";
+            qDebug() << "Index i: " << i;
             break;
+        }
+
+        pointsArrayHexagon->Resize(0);
+        outsidePointsCounter = 0;
 
         i++;
 
     }
-
-
-
 
     //VISUALIZATION OF HEXAGONS
     vtkSmartPointer<vtkPolyData> hexagonPolyData =
@@ -386,12 +427,23 @@ MainWindow::MainWindow(QWidget *parent) :
             vtkSmartPointer<vtkActor>::New();
     sphereActor->SetMapper(sphereMapper);
 
+
+
     //LASER BEAM
     vtkSmartPointer<vtkLineSource> laserLine =
             vtkSmartPointer<vtkLineSource>::New();
     laserLine->SetPoint1(pointsArray->GetPoint(closestId));
     laserLine->SetPoint2(0.0, 0.0, scannerHeight);
     laserLine->Update();
+
+    vtkSmartPointer<vtkCallbackCommand> keypressCallback =
+        vtkSmartPointer<vtkCallbackCommand>::New();
+
+
+    keypressCallback->SetClientData(laserLine);
+    keypressCallback->SetCallback(KeypressCallbackFunction );
+    renderWindowInteractor->AddObserver(vtkCommand::KeyPressEvent, keypressCallback);
+
 
     vtkSmartPointer<vtkTubeFilter> tubeFilter =
             vtkSmartPointer<vtkTubeFilter>::New();
@@ -439,4 +491,13 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void KeypressCallbackFunction(vtkObject *caller, unsigned long eventId, void *clientData, void *callData )
+{
+    callbackCounter++;
+    vtkLineSource* lineSource =
+            static_cast<vtkLineSource*>(clientData);
+    lineSource->SetPoint1(fullHexagonArray->GetPoint(callbackCounter));
+    lineSource->Update();
 }
