@@ -1,0 +1,15 @@
+set(vtkGUISupportQtSQL_LOADED 1)
+set(vtkGUISupportQtSQL_DEPENDS "vtkCommonCore;vtkIOSQL;vtksys")
+set(vtkGUISupportQtSQL_LIBRARIES "vtkGUISupportQtSQL")
+set(vtkGUISupportQtSQL_INCLUDE_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/GUISupport/QtSQL;/home/urf/Documents/VTK-7.1.1/GUISupport/QtSQL")
+set(vtkGUISupportQtSQL_LIBRARY_DIRS "")
+set(vtkGUISupportQtSQL_RUNTIME_LIBRARY_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/lib")
+set(vtkGUISupportQtSQL_WRAP_HIERARCHY_FILE "")
+set(vtkGUISupportQtSQL_KIT "")
+set(vtkGUISupportQtSQL_EXCLUDE_FROM_WRAPPING 1)
+
+if(NOT Qt5_DIR)
+  set(Qt5_DIR "/usr/lib/x86_64-linux-gnu/cmake/Qt5")
+endif()
+find_package(Qt5 REQUIRED QUIET COMPONENTS Sql Widgets)
+

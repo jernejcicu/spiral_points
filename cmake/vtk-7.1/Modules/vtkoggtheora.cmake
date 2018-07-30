@@ -1,0 +1,10 @@
+set(vtkoggtheora_LOADED 1)
+set(vtkoggtheora_DEPENDS "")
+set(vtkoggtheora_LIBRARIES "vtkoggtheora")
+set(vtkoggtheora_INCLUDE_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/ThirdParty/oggtheora;/home/urf/Documents/VTK-7.1.1/ThirdParty/oggtheora")
+set(vtkoggtheora_LIBRARY_DIRS "")
+set(vtkoggtheora_RUNTIME_LIBRARY_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/lib")
+set(vtkoggtheora_WRAP_HIERARCHY_FILE "")
+set(vtkoggtheora_KIT "")
+set(vtkoggtheora_EXCLUDE_FROM_WRAPPING 1)
+

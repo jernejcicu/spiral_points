@@ -1,0 +1,10 @@
+set(vtkRenderingContextOpenGL_LOADED 1)
+set(vtkRenderingContextOpenGL_DEPENDS "vtkCommonCore;vtkCommonDataModel;vtkCommonMath;vtkCommonTransforms;vtkRenderingContext2D;vtkRenderingContext2D;vtkRenderingCore;vtkRenderingFreeType;vtkRenderingOpenGL")
+set(vtkRenderingContextOpenGL_LIBRARIES "vtkRenderingContextOpenGL")
+set(vtkRenderingContextOpenGL_INCLUDE_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/Rendering/ContextOpenGL;/home/urf/Documents/VTK-7.1.1/Rendering/ContextOpenGL")
+set(vtkRenderingContextOpenGL_LIBRARY_DIRS "")
+set(vtkRenderingContextOpenGL_RUNTIME_LIBRARY_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/lib")
+set(vtkRenderingContextOpenGL_WRAP_HIERARCHY_FILE "")
+set(vtkRenderingContextOpenGL_KIT "vtkOpenGL")
+set(vtkRenderingContextOpenGL_IMPLEMENTS "vtkRenderingContext2D")
+

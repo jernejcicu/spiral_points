@@ -1,0 +1,15 @@
+set(vtkGUISupportQtOpenGL_LOADED 1)
+set(vtkGUISupportQtOpenGL_DEPENDS "vtkCommonCore;vtkGUISupportQt;vtkInteractionStyle;vtkRenderingOpenGL")
+set(vtkGUISupportQtOpenGL_LIBRARIES "vtkGUISupportQtOpenGL")
+set(vtkGUISupportQtOpenGL_INCLUDE_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/GUISupport/QtOpenGL;/home/urf/Documents/VTK-7.1.1/GUISupport/QtOpenGL")
+set(vtkGUISupportQtOpenGL_LIBRARY_DIRS "")
+set(vtkGUISupportQtOpenGL_RUNTIME_LIBRARY_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/lib")
+set(vtkGUISupportQtOpenGL_WRAP_HIERARCHY_FILE "")
+set(vtkGUISupportQtOpenGL_KIT "")
+set(vtkGUISupportQtOpenGL_EXCLUDE_FROM_WRAPPING 1)
+
+if(NOT Qt5_DIR)
+  set(Qt5_DIR "/usr/lib/x86_64-linux-gnu/cmake/Qt5")
+endif()
+find_package(Qt5 REQUIRED QUIET COMPONENTS OpenGL)
+

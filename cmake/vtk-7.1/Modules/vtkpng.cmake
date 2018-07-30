@@ -1,0 +1,10 @@
+set(vtkpng_LOADED 1)
+set(vtkpng_DEPENDS "vtkzlib")
+set(vtkpng_LIBRARIES "vtkpng")
+set(vtkpng_INCLUDE_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/ThirdParty/png;/home/urf/Documents/VTK-7.1.1/ThirdParty/png")
+set(vtkpng_LIBRARY_DIRS "")
+set(vtkpng_RUNTIME_LIBRARY_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/lib")
+set(vtkpng_WRAP_HIERARCHY_FILE "")
+set(vtkpng_KIT "")
+set(vtkpng_EXCLUDE_FROM_WRAPPING 1)
+

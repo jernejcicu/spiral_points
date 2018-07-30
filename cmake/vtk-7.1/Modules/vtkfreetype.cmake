@@ -1,0 +1,10 @@
+set(vtkfreetype_LOADED 1)
+set(vtkfreetype_DEPENDS "vtkkwiml;vtkzlib")
+set(vtkfreetype_LIBRARIES "vtkfreetype")
+set(vtkfreetype_INCLUDE_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/ThirdParty/freetype;/home/urf/Documents/VTK-7.1.1/ThirdParty/freetype")
+set(vtkfreetype_LIBRARY_DIRS "")
+set(vtkfreetype_RUNTIME_LIBRARY_DIRS "/home/urf/Documents/VTK-7.1.1/VTK-build/lib")
+set(vtkfreetype_WRAP_HIERARCHY_FILE "")
+set(vtkfreetype_KIT "")
+set(vtkfreetype_EXCLUDE_FROM_WRAPPING 1)
+
