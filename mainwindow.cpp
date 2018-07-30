@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     double spotSize = 8;
-    double stepOver = 4;
+    double stepOver = 7;
     double scannerHeight = 200;
     double workAreaX = 60;
     double workAreaY = 40;
@@ -181,6 +181,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //INDEXING SPIRAL
 
+    //SEARCH FOR THE CLOSEST POINT IN THE CONVENTIONAL POINT PLACEMENT
     vtkSmartPointer<vtkKdTreePointLocator> kdTree =
             vtkSmartPointer<vtkKdTreePointLocator>::New();
     kdTree->SetDataSet(polyDataPoints);
@@ -190,9 +191,11 @@ MainWindow::MainWindow(QWidget *parent) :
     double referencePoint[3] = {0.0, 0.0, 0.0};
     vtkIdType closestId = kdTree->FindClosestPoint(referencePoint);
 
+
     vtkSmartPointer<vtkPoints> pointsArrayTrueSpiral =
             vtkSmartPointer<vtkPoints>::New();
-
+    vtkSmartPointer<vtkPoints> fullHexagonArray =
+            vtkSmartPointer<vtkPoints>::New();
 
     vtkSmartPointer<vtkPoints> sixSide1 =
             vtkSmartPointer<vtkPoints>::New();
@@ -207,9 +210,7 @@ MainWindow::MainWindow(QWidget *parent) :
     vtkSmartPointer<vtkPoints> sixSide6 =
             vtkSmartPointer<vtkPoints>::New();
 
-
     double hexagonCenterPoint[3];
-
 
     pointsArrayTrueSpiral->InsertNextPoint(polyDataPoints->GetPoint(closestId));
 
@@ -221,89 +222,129 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //POULATING THE HEXAGON
     //First points in the new hexagon
-
-
-
-    int i=5;
-
-    //1 SIDE OF HEXAGON
-    sixSide1->InsertNextPoint(hexagonCenterPoint[0], hexagonCenterPoint[1] - stepOver*(i-1), hexagonCenterPoint[2]);
-    sixSide1->GetPoint(sixSide1->GetNumberOfPoints() - 1, referencePoint);
-
-
-    for(int j = 0; j<i; j++)
-    {
-        sixSide1->InsertNextPoint(referencePoint[0] + stepOver*j, referencePoint[1] + (stepOver/2)*j, referencePoint[2]);
-    }
-    //2 SIDE OF HEXAGON
-    sixSide1->GetPoint(sixSide1->GetNumberOfPoints() - 1, referencePoint);
-    for(int j = 0; j<i; j++)
-    {
-        sixSide2->InsertNextPoint(referencePoint[0], referencePoint[1] + stepOver*j, referencePoint[2]);
-    }
-    //3 SIDE OF HEXAGON
-    sixSide2->GetPoint(sixSide2->GetNumberOfPoints() - 1, referencePoint);
-    for(int j = 0; j<i; j++)
-    {
-        sixSide3->InsertNextPoint(referencePoint[0]-stepOver*j, referencePoint[1] + (stepOver/2)*j, referencePoint[2]);
-    }
-    //4 SIDE OF HEXAGON
-    sixSide3->GetPoint(sixSide3->GetNumberOfPoints() - 1, referencePoint);
-    for(int j = 0; j<i; j++)
-    {
-        sixSide4->InsertNextPoint(referencePoint[0]-stepOver*j, referencePoint[1] - (stepOver/2)*j, referencePoint[2]);
-    }
-    //5 SIDE OF HEXAGON
-    sixSide4->GetPoint(sixSide4->GetNumberOfPoints() - 1, referencePoint);
-    for(int j = 0; j<i; j++)
-    {
-        sixSide5->InsertNextPoint(referencePoint[0], referencePoint[1] - stepOver*j, referencePoint[2]);
-    }
-    //6 SIDE OF HEXAGON
-    sixSide5->GetPoint(sixSide5->GetNumberOfPoints() - 1, referencePoint);
-    for(int j = 0; j<(i-1); j++)
-    {
-        sixSide6->InsertNextPoint(referencePoint[0]+stepOver*j, referencePoint[1] - (stepOver*j)/2, referencePoint[2]);
-    }
-
-
-    qDebug()<< "Number of points in sixSide1: " << (int)sixSide1->GetNumberOfPoints();
-    qDebug()<< "Number of points in sixSide2: " << (int)sixSide2->GetNumberOfPoints();
-    qDebug()<< "Number of points in sixSide3: " << (int)sixSide3->GetNumberOfPoints();
-    qDebug()<< "Number of points in sixSide4: " << (int)sixSide4->GetNumberOfPoints();
-    qDebug()<< "Number of points in sixSide5: " << (int)sixSide5->GetNumberOfPoints();
-    qDebug()<< "Number of points in sixSide6: " << (int)sixSide6->GetNumberOfPoints();
-
-    //COMBINING HEXAGON POINTS INTO A SINGLE SET OF POINTS
+    int i=2;
+    int outsidePointsCounter = 0;
+    fullHexagonArray->InsertNextPoint(hexagonCenterPoint);
     vtkSmartPointer<vtkPoints> pointsArrayHexagon =
             vtkSmartPointer<vtkPoints>::New();
 
-    pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
-                                        sixSide1->GetNumberOfPoints(),
-                                        0, sixSide1);
-    pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
-                                        sixSide2->GetNumberOfPoints(),
-                                        0, sixSide2);
-    pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
-                                        sixSide3->GetNumberOfPoints(),
-                                        0, sixSide3);
-    pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
-                                        sixSide3->GetNumberOfPoints(),
-                                        0, sixSide4);
-    pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
-                                        sixSide5->GetNumberOfPoints(),
-                                        0, sixSide5);
-    pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
-                                        sixSide6->GetNumberOfPoints(),
-                                        0, sixSide6);
+    while(i<4)
+    {
+        //1 SIDE OF HEXAGON
+        sixSide1->InsertNextPoint(hexagonCenterPoint[0], hexagonCenterPoint[1] - stepOver*(i-1), hexagonCenterPoint[2]);
+        sixSide1->GetPoint(sixSide1->GetNumberOfPoints() - 1, referencePoint);
+        for(int j = 1; j<i; j++)
+        {
+            sixSide1->InsertNextPoint(referencePoint[0] + stepOver*j, referencePoint[1] + (stepOver/2)*j, referencePoint[2]);
+        }
+        //2 SIDE OF HEXAGON
+        sixSide1->GetPoint(sixSide1->GetNumberOfPoints() - 1, referencePoint);
+        for(int j = 1; j<i; j++)
+        {
+            sixSide2->InsertNextPoint(referencePoint[0], referencePoint[1] + stepOver*j, referencePoint[2]);
+        }
+        //3 SIDE OF HEXAGON
+        sixSide2->GetPoint(sixSide2->GetNumberOfPoints() - 1, referencePoint);
+        for(int j = 1; j<i; j++)
+        {
+            sixSide3->InsertNextPoint(referencePoint[0]-stepOver*j, referencePoint[1] + (stepOver/2)*j, referencePoint[2]);
+        }
+        //4 SIDE OF HEXAGON
+        sixSide3->GetPoint(sixSide3->GetNumberOfPoints() - 1, referencePoint);
+        for(int j = 1; j<i; j++)
+        {
+            sixSide4->InsertNextPoint(referencePoint[0]-stepOver*j, referencePoint[1] - (stepOver/2)*j, referencePoint[2]);
+        }
+        //5 SIDE OF HEXAGON
+        sixSide4->GetPoint(sixSide4->GetNumberOfPoints() - 1, referencePoint);
+        for(int j = 1; j<i; j++)
+        {
+            sixSide5->InsertNextPoint(referencePoint[0], referencePoint[1] - stepOver*j, referencePoint[2]);
+        }
+        //6 SIDE OF HEXAGON
+        sixSide5->GetPoint(sixSide5->GetNumberOfPoints() - 1, referencePoint);
+        for(int j = 1; j<(i-1); j++)
+        {
+            sixSide6->InsertNextPoint(referencePoint[0]+stepOver*j, referencePoint[1] - (stepOver*j)/2, referencePoint[2]);
+        }
 
-    qDebug()<< "Number of points in pointsArrayHexagon: " << (int)pointsArrayHexagon->GetNumberOfPoints();
+
+        qDebug()<< "Number of points in sixSide1: " << (int)sixSide1->GetNumberOfPoints();
+        qDebug()<< "Number of points in sixSide2: " << (int)sixSide2->GetNumberOfPoints();
+        qDebug()<< "Number of points in sixSide3: " << (int)sixSide3->GetNumberOfPoints();
+        qDebug()<< "Number of points in sixSide4: " << (int)sixSide4->GetNumberOfPoints();
+        qDebug()<< "Number of points in sixSide5: " << (int)sixSide5->GetNumberOfPoints();
+        qDebug()<< "Number of points in sixSide6: " << (int)sixSide6->GetNumberOfPoints();
+
+        //COMBINING HEXAGON POINTS INTO A SINGLE SET OF POINTS
+
+
+        pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
+                                            sixSide1->GetNumberOfPoints(),
+                                            0, sixSide1);
+        pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
+                                            sixSide2->GetNumberOfPoints(),
+                                            0, sixSide2);
+        pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
+                                            sixSide3->GetNumberOfPoints(),
+                                            0, sixSide3);
+        pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
+                                            sixSide3->GetNumberOfPoints(),
+                                            0, sixSide4);
+        pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
+                                            sixSide5->GetNumberOfPoints(),
+                                            0, sixSide5);
+        pointsArrayHexagon->InsertPoints(pointsArrayHexagon->GetNumberOfPoints(),
+                                            sixSide6->GetNumberOfPoints(),
+                                            0, sixSide6);
+
+        sixSide1->Resize(0);
+        sixSide2->Resize(0);
+        sixSide3->Resize(0);
+        sixSide4->Resize(0);
+        sixSide5->Resize(0);
+        sixSide6->Resize(0);
+
+
+
+        //CHECKING IF POINTS IN pointsArrayHexagon ARE POSITONED IN THE WORK AREA and populating a fullHexagonArray
+
+        for (int i = 0; i<pointsArrayHexagon->GetNumberOfPoints(); i++)
+        {
+            pointsArrayHexagon->GetPoint(i,bufferPoint);
+            if((abs(bufferPoint[0]) <= workAreaX/2) && (abs(bufferPoint[1]) <= workAreaY/2)) {
+                fullHexagonArray->InsertNextPoint(bufferPoint);
+                qDebug() << "INSIDE!";
+            }
+            else {
+                qDebug() << "OUTSIDE!";
+                outsidePointsCounter++;
+            }
+
+        }
+
+        pointsArrayHexagon->Resize(0);
+
+        qDebug()<< "Number of points in pointsArrayHexagon: " << (int)pointsArrayHexagon->GetNumberOfPoints();
+        qDebug()<< "Outside points counter: " << outsidePointsCounter;
+
+        qDebug()<< "Number of points in fullHexagonArray: " << (int)fullHexagonArray->GetNumberOfPoints();
+
+        if (pointsArrayHexagon->GetNumberOfPoints() == outsidePointsCounter)
+            break;
+
+        i++;
+
+    }
+
+
 
 
     //VISUALIZATION OF HEXAGONS
     vtkSmartPointer<vtkPolyData> hexagonPolyData =
             vtkSmartPointer<vtkPolyData>::New();
-    hexagonPolyData->SetPoints(pointsArrayHexagon);
+    //hexagonPolyData->SetPoints(pointsArrayHexagon);
+    hexagonPolyData->SetPoints(fullHexagonArray);
 
     vertexFilter->SetInputData(hexagonPolyData);
     vertexFilter->Update();
